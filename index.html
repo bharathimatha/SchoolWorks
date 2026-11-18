@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Student Workflow · follow up after class</title>
+  <style>
+    /* ----- global reset & base ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f7fb;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #1e293b;
+    }
+
+    /* main container – works as a centered card on larger screens, full width on small */
+    .app-wrapper {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ----- header / greeting ----- */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.5rem 0;
+    }
+
+    .greeting h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #0f172a;
+    }
+
+    .greeting p {
+      font-size: 0.95rem;
+      color: #475569;
+      margin-top: 0.2rem;
+    }
+
+    .date-badge {
+      background: #ffffff;
+      border-radius: 40px;
+      padding: 0.5rem 1.2rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      white-space: nowrap;
+    }
+
+    /* ----- stats row ----- */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1rem 0.9rem;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      border: 1px solid #e9eef3;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: 0.1s ease;
+    }
+
+    .stat-emoji {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    .stat-number {
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #0f172a;
+    }
+
+    /* ----- main tasks section (two columns on desktop, stacked on mobile) ----- */
+    .tasks-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (min-width: 640px) {
+      .tasks-section {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .column {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 1.2rem 1rem 1rem 1rem;
+      border: 1px solid #e9eef3;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid #eef2f6;
+    }
+
+    .column-header h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #0b1d2e;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .column-header span {
+      font-size: 0.8rem;
+      background: #eef2f6;
+      padding: 0.2rem 0.6rem;
+      border-radius: 30px;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    /* task list – using ul for semantics */
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      background: #fafcff;
+      padding: 0.8rem 0.8rem;
+      border-radius: 16px;
+      border: 1px solid #eef2f6;
+      transition: background 0.15s;
+    }
+
+    .task-item:hover {
+      background: #f5f9ff;
+      border-color: #d9e2ec;
+    }
+
+    .task-check {
+      flex-shrink: 0;
+      margin-top: 0.15rem;
+    }
+
+    .task-check input[type="checkbox"] {
+      width: 1.3rem;
+      height: 1.3rem;
+      accent-color: #3b82f6;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: 0.1s;
+      transform: scale(1);
+    }
+
+    .task-check input[type="checkbox"]:hover {
+      transform: scale(1.05);
+    }
+
+    .task-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .task-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #0f172a;
+      word-break: break-word;
+      line-height: 1.35;
+      transition: color 0.1s, text-decoration 0.1s;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.9rem;
+      font-size: 0.75rem;
+      color: #5f6c7a;
+    }
+
+    .task-subject {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      background: #eef2f6;
+      padding: 0.15rem 0.6rem;
+      border-radius: 30px;
+      font-weight: 500;
+      color: #2d3e4f;
+    }
+
+    .task-due {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .task-due::before {
+      content: "⏳";
+      font-size: 0.75rem;
+    }
+
+    /* completed style */
+    .task-item.completed .task-title {
+      text-decoration: line-through;
+      color: #8b9aa8;
+    }
+
+    .task-item.completed {
+      opacity: 0.85;
+      background: #f8fafd;
+    }
+
+    /* add-hint / footer note inside column */
+    .column-footer {
+      margin-top: 0.3rem;
+      font-size: 0.8rem;
+      color: #6b7b8b;
+      text-align: center;
+      border-top: 1px dashed #dce3eb;
+      padding-top: 0.7rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* ----- bottom bar / quick follow-up notes (responsive) ----- */
+    .followup-bar {
+      background: white;
+      border-radius: 22px;
+      padding: 1rem 1.2rem;
+      border: 1px solid #e9eef3;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .followup-text {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 500;
+      color: #1e2b3a;
+      font-size: 0.95rem;
+    }
+
+    .followup-text span {
+      background: #e6f0ff;
+      padding: 0.3rem 0.7rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      color: #1e4b7a;
+      font-weight: 500;
+    }
+
+    .reminder-btn {
+      background: #3b82f6;
+      border: none;
+      padding: 0.55rem 1.4rem;
+      border-radius: 40px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: default;
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+      transition: 0.1s;
+      pointer-events: none; /* purely visual, no complex JS */
+      white-space: nowrap;
+    }
+
+    /* small screens adjustments */
+    @media (max-width: 450px) {
+      body {
+        padding: 0.75rem;
+      }
+
+      .greeting h1 {
+        font-size: 1.35rem;
+      }
+
+      .stat-card {
+        padding: 0.75rem;
+      }
+
+      .stat-number {
+        font-size: 1.4rem;
+      }
+
+      .column {
+        padding: 1rem 0.8rem;
+      }
+
+      .task-item {
+        padding: 0.7rem 0.7rem;
+      }
+
+      .followup-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .reminder-btn {
+        pointer-events: none;
+      }
+    }
+
+    /* interactive: checkbox strike-through works via pure CSS (checkbox + sibling) 
+       we use :has() for modern browsers to style parent, but we also provide fallback 
+       by keeping item style consistent. Since we want the strike to work instantly 
+       without JS, we use the :has selector which is widely supported now.  */
+    .task-item:has(input[type="checkbox"]:checked) .task-title {
+      text-decoration: line-through;
+      color: #8b9aa8;
+    }
+
+    .task-item:has(input[type="checkbox"]:checked) {
+      opacity: 0.85;
+      background: #f8fafd;
+    }
+
+    /* remove duplicate class-based completed styling for cleaner approach */
+    /* we keep a fallback without :has for very old browsers, but modern is fine */
+    .task-item.completed .task-title {
+      text-decoration: line-through;
+      color: #8b9aa8;
+    }
+
+    /* if :has is not supported, the checkbox still toggles but won't strike.
+       we add a tiny javascript-free hint: no extra JS, only :has – fine for modern */
+    
+    /* accessibility & touch */
+    input[type="checkbox"] {
+      appearance: auto;
+    }
+
+    .task-title {
+      cursor: default;
+    }
+
+    /* clean scroll and focus */
+    :focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+
+    <!-- header: greeting + date -->
+    <div class="header">
+      <div class="greeting">
+        <h1>📚 after class · follow up</h1>
+        <p>keep track of what’s due & what you’ve done</p>
+      </div>
+      <div class="date-badge" id="currentDate">Mon, Apr 7</div>
+    </div>
+
+    <!-- quick stats (static for demo) -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-emoji">📋</div>
+        <div class="stat-info">
+          <span class="stat-label">total tasks</span>
+          <span class="stat-number">6</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-emoji">✅</div>
+        <div class="stat-info">
+          <span class="stat-label">completed</span>
+          <span class="stat-number">2</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-emoji">⏳</div>
+        <div class="stat-info">
+          <span class="stat-label">remaining</span>
+          <span class="stat-number">4</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- main tasks: two columns (today & upcoming) -->
+    <div class="tasks-section">
+
+      <!-- column 1: today's follow-up -->
+      <div class="column">
+        <div class="column-header">
+          <h2>📌 today</h2>
+          <span>3 items</span>
+        </div>
+        <ul class="task-list">
+          <!-- task 1 -->
+          <li class="task-item">
+            <div class="task-check">
+              <input type="checkbox" id="task1" aria-label="mark review algebra as complete">
+            </div>
+            <div class="task-content">
+              <div class="task-title">Review algebra quiz mistakes</div>
+              <div class="task-meta">
+                <span class="task-subject">📐 math</span>
+                <span class="task-due">due today</span>
+              </div>
+            </div>
+          </li>
+          <!-- task 2 -->
+          <li class="task-item">
+            <div class="task-check">
+              <input type="checkbox" id="task2" aria-label="mark read history chapter as complete" checked>
+            </div>
+            <div class="task-content">
+              <div class="task-title">Read history chapter 5</div>
+              <div class="task-meta">
+                <span class="task-subject">📜 history</span>
+                <span class="task-due">due today</span>
+              </div>
+            </div>
+          </li>
+          <!-- task 3 -->
+          <li class="task-item">
+            <div class="task-check">
+              <input type="checkbox" id="task3" aria-label="mark finish lab report as complete">
+            </div>
+            <div class="task-content">
+              <div class="task-title">Finish lab report (photosynthesis)</div>
+              <div class="task-meta">
+                <span class="task-subject">🧪 biology</span>
+                <span class="task-due">due 5pm</span>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="column-footer">
+          ✔️ check off as you go
+        </div>
+      </div>
+
+      <!-- column 2: upcoming / after class follow-up -->
+      <div class="column">
+        <div class="column-header">
+          <h2>📅 upcoming</h2>
+          <span>3 items</span>
+        </div>
+        <ul class="task-list">
+          <!-- task 4 -->
+          <li class="task-item">
+            <div class="task-check">
+              <input type="checkbox" id="task4" aria-label="mark practice spanish vocabulary as complete">
+            </div>
+            <div class="task-content">
+              <div class="task-title">Practice Spanish vocabulary</div>
+              <div class="task-meta">
+                <span class="task-subject">🗣️ spanish</span>
+                <span class="task-due">tomorrow</span>
+              </div>
+            </div>
+          </li>
+          <!-- task 5 -->
+          <li class="task-item">
+            <div class="task-check">
+              <input type="checkbox" id="task5" aria-label="mark outline essay as complete">
+            </div>
+            <div class="task-content">
+              <div class="task-title">Outline English essay draft</div>
+              <div class="task-meta">
+                <span class="task-subject">📝 english</span>
+                <span class="task-due">wed</span>
+              </div>
+            </div>
+          </li>
+          <!-- task 6 (already completed for demo) -->
+          <li class="task-item completed">
+            <div class="task-check">
+              <input type="checkbox" id="task6" aria-label="mark group project as complete" checked>
+            </div>
+            <div class="task-content">
+              <div class="task-title">Group project – research notes</div>
+              <div class="task-meta">
+                <span class="task-subject">🌍 social studies</span>
+                <span class="task-due">completed</span>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="column-footer">
+          📎 stay ahead of deadlines
+        </div>
+      </div>
+    </div>
+
+    <!-- bottom follow-up reminder / quick action (responsive, no complex js) -->
+    <div class="followup-bar">
+      <div class="followup-text">
+        🧠 after-class check‑in
+        <span>3 tasks left today</span>
+      </div>
+      <div class="reminder-btn">
+        ⏰ set follow‑up reminder
+      </div>
+    </div>
+
+    <!-- tiny footer / note -->
+    <div style="text-align: center; font-size: 0.7rem; color: #8b9aa8; margin-top: 0.4rem;">
+      ✦ responsive student workflow · follow up after classes ✦
+    </div>
+  </div>
+
+  <!-- tiny script to update date (just for niceness, no functionality) -->
+  <script>
+    (function() {
+      // update the date badge with a friendly format
+      const dateEl = document.getElementById('currentDate');
+      if (dateEl) {
+        const now = new Date();
+        const options = { weekday: 'short', month: 'short', day: 'numeric' };
+        dateEl.textContent = now.toLocaleDateString('en-US', options);
+      }
+    })();
+  </script>
+  <!-- no heavy js, all interaction via pure CSS (checkbox strike via :has) -->
+</body>
+</html>
